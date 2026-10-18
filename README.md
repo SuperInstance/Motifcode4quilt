@@ -81,11 +81,18 @@ harness can be written by anyone.**
 
 ### What we have changed
 
-**1. We made the claim measurable, and published the way to check it.**
+**0. What is upstream's, and what is ours.** The harness, the model
+guide, the eleven-opcode playground, the three-harness polyglot
+benchmark and the `polyglot-bench` kit are **Taewoo Park's work**,
+dated 2026-09-21, and they live here because a fork carries its
+upstream's history. **We do not claim them.** What follows is only what
+this fork changed.
+**1. The benchmark is upstream's, and it is the method this fork
+inherits.**
 
 The field compares harnesses by changing the model. That cannot tell you
-whether a harness is good, only whether a model is good. We did the
-opposite: **the same model, three harnesses, one benchmark.**
+whether a harness is good, only whether a model is good. Upstream did
+the opposite: **the same model, three harnesses, one benchmark.**
 
 | harness | passed | pass rate (95% CI) | vs. Motifcode, paired | McNemar p |
 |---|---|---|---|---|
@@ -111,7 +118,7 @@ exclusions and the per-language table, so anyone can repeat the run with
 their own key. The full method and the incident log are in
 [`packages/eval/REPORT.md`](packages/eval/REPORT.md).
 
-**2. We made the harness survive the model it was written for.**
+**4. We made the harness survive the model it was written for.**
 
 Motif-3's faults are not hypothetical, so the loop is tested against them
 directly — the tests inject the faults the model actually produces:
@@ -128,21 +135,27 @@ server. In the fork:
   (`pnpm lint:tools`).
 
 **3. We fixed the things that only show up under a real terminal.**
+These are this fork's own commits, September 2026:
 
-- **UTF-8 survives the terminal.** It is preserved across input chunks, and
+- **UTF-8 survives the terminal** -- preserved across input chunks, and
   writes report UTF-8 byte counts rather than character counts.
 - **A read does not render a phantom EOF line.**
-- **Retries survive into the recording** — the transport's retry metadata
-  is kept, so a replayed session shows what actually happened.
+- **Retries survive into the recording** -- the transport's retry
+  metadata is kept, so a replayed session shows what actually happened.
 - **The second `doctor` probe's cache metrics are reported** rather than
   dropped.
 - **Plugin load errors are shown when none succeed**, instead of a
   session that starts with nothing loaded and no explanation.
 - **Expanded pasted prompts are retained** in composer history.
-- **The release workflow is idempotent** and creates the GitHub release,
-  publishing through trusted publishing with provenance and no stored token.
-- **`npx` offers the global install**, so the command survives the folder
-  you happened to be in.
+- **Print mode restores a resumed checkpoint** instead of losing it.
+
+**5. We made the published package be the code we wrote.** The published
+`motifcode` pointed its `main` at `./src/index.ts` -- a file the npm
+`files` list never shipped -- so `npm i motifcode` succeeded and
+`require('motifcode')` then threw `MODULE_NOT_FOUND`. The CLI worked
+because `bin` pointed at `dist/motif.js`; the library entry did not, and
+the obvious smoke test exercised the one that worked. `main` and
+`exports` now name the built artifact.
 
 ### The vision
 
@@ -511,8 +524,14 @@ harnesses for science and code. [taewoopark.com](https://taewoopark.com) ·
 [GitHub](https://github.com/TaewoooPark) · [X](https://x.com/theoverstrcture) ·
 [LinkedIn](https://www.linkedin.com/in/taewoo-park-427a05352)
 
-**This fork — SuperInstance.** The changes above are ours:
+**This fork — SuperInstance.** The changes above are ours, and they were
+made by more than one pair of hands in September 2026:
 [github.com/SuperInstance/Motifcode4quilt](https://github.com/SuperInstance/Motifcode4quilt).
+The fork's own commits include `fatihcvs` (transport retry metadata,
+pasted-prompt history, UTF-8 across terminal chunks, the second `doctor`
+probe's cache metrics), `Cory Kim` (UTF-8 byte counts on writes),
+`Bimo _o` (no phantom EOF line on read), `David` (plugin load errors
+when none succeed) and `Wonjeong Kim` (print-mode resume checkpoint).
 
 This is a fork of [TaewooPark/Motifcode](https://github.com/TaewoooPark/Motifcode)
 and remains under its Apache-2.0 licence. We are grateful for the original
