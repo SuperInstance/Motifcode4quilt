@@ -12,8 +12,8 @@
 
 <p align="center">
   <img src="https://img.shields.io/npm/v/motifcode?style=flat-square&labelColor=000000&color=333333" alt="npm">
-  <img src="https://img.shields.io/github/last-commit/TaewoooPark/Motifcode?style=flat-square&labelColor=000000&color=333333" alt="Last commit">
-  <img src="https://img.shields.io/github/actions/workflow/status/TaewoooPark/Motifcode/ci.yml?branch=main&style=flat-square&labelColor=000000&color=333333" alt="CI">
+  <img src="https://img.shields.io/github/last-commit/SuperInstance/Motifcode4quilt?style=flat-square&labelColor=000000&color=333333" alt="Last commit">
+  <img src="https://img.shields.io/github/actions/workflow/status/SuperInstance/Motifcode4quilt/ci.yml?branch=main&style=flat-square&labelColor=000000&color=333333" alt="CI">
   <img src="https://img.shields.io/badge/license-Apache--2.0-000000?style=flat-square&labelColor=000000&color=333333" alt="Apache-2.0">
   &nbsp;
   <img src="https://img.shields.io/badge/TypeScript-000000?style=flat-square&logo=typescript&logoColor=white&labelColor=000000" alt="TypeScript">
@@ -54,6 +54,21 @@ Motifcode는 Claude Code의 모양을 한 터미널 코딩 에이전트입니다
 </p>
 
 ---
+
+> **이 저장소는 SuperInstance의 포크입니다.** 상위 프로젝트는
+> [TaewoooPark/Motifcode](https://github.com/TaewoooPark/Motifcode)이며, npm의
+> `motifcode` 패키지는 저자의 것입니다. 우리는 그 이름을 쓸 수 없습니다.
+>
+> **우리가 무엇을 바꿨는지, 그리고 비전은 영어 README의
+> [This is SuperInstance's fork](README.md#this-is-superinstances-fork) 섹션에
+> 있습니다.** (영문판 기준 2026-10-18 갱신)
+>
+> 핵심: **같은 모델, 세 개의 하네스, 하나의 벤치마크.** Aider polyglot 213개
+> 인스턴스에서 Motifcode 92.0%, OpenCode 83.1%, Codex 79.8% (쌍대 McNemar
+> p=0.003 / <0.001) — **격차는 모델이 아니라 하네스에서 나옵니다.** 그리고 그
+> 측정을 반복할 수 있는 도구(`packages/eval/polyglot-bench/`)를 함께 공개합니다.
+> 그 밖의 개선: 떨어진 툴콜 복구, breakage budget, UTF-8 정확성, 재시도 메타데이터
+> 보존, 멱등 릴리스 워크플로우.
 
 ## 왜 만들었는가
 

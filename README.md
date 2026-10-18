@@ -12,8 +12,8 @@
 
 <p align="center">
   <img src="https://img.shields.io/npm/v/motifcode?style=flat-square&labelColor=000000&color=333333" alt="npm">
-  <img src="https://img.shields.io/github/last-commit/TaewoooPark/Motifcode?style=flat-square&labelColor=000000&color=333333" alt="Last commit">
-  <img src="https://img.shields.io/github/actions/workflow/status/TaewoooPark/Motifcode/ci.yml?branch=main&style=flat-square&labelColor=000000&color=333333" alt="CI">
+  <img src="https://img.shields.io/github/last-commit/SuperInstance/Motifcode4quilt?style=flat-square&labelColor=000000&color=333333" alt="Last commit">
+  <img src="https://img.shields.io/github/actions/workflow/status/SuperInstance/Motifcode4quilt/ci.yml?branch=main&style=flat-square&labelColor=000000&color=333333" alt="CI">
   <img src="https://img.shields.io/badge/license-Apache--2.0-000000?style=flat-square&labelColor=000000&color=333333" alt="Apache-2.0">
   &nbsp;
   <img src="https://img.shields.io/badge/TypeScript-000000?style=flat-square&logo=typescript&logoColor=white&labelColor=000000" alt="TypeScript">
@@ -53,6 +53,129 @@ different base URL.
 <p align="center">
   <img src="docs/screen-large.jpg" alt="motif in a wide terminal" width="912">
 </p>
+
+---
+
+## This is SuperInstance's fork
+
+**Upstream is [TaewooPark/Motifcode](https://github.com/TaewoooPark/Motifcode)**, by
+Taewoo Park (KAIST) — a coding agent harness written for one open-weight
+model, Motif-3. The `motifcode` package on npm is **his**; this repository
+is our working fork of it, and it is not published under that name.
+
+We forked it because of a specific argument, and we have since spent the
+fork making that argument measurable.
+
+**The argument.** On 18 August 2026 Korea's Ministry of Science and ICT
+eliminated Motif Technologies from the second round of the national
+sovereign-model programme — **with the highest benchmark score of the four
+teams.** The stated reason was *usability and applicability*, not
+capability.
+
+That is a harness-shaped deficit. Whether a model's tool calls parse,
+whether the prompt is laid out the way its own chat template expects,
+whether one malformed turn is repaired or ends the session, whether the
+tools it was scored with are the tools it is given — none of those are
+properties of the weights. They are properties of the harness, and **a
+harness can be written by anyone.**
+
+### What we have changed
+
+**1. We made the claim measurable, and published the way to check it.**
+
+The field compares harnesses by changing the model. That cannot tell you
+whether a harness is good, only whether a model is good. We did the
+opposite: **the same model, three harnesses, one benchmark.**
+
+| harness | passed | pass rate (95% CI) | vs. Motifcode, paired | McNemar p |
+|---|---|---|---|---|
+| **Motifcode 0.3.0** + Motif-3 | **196** / 213 | **92.0%** (87.6–95.0) | — | — |
+| OpenCode 1.17.9 + Motif-3 | 177 / 213 | 83.1% (77.5–87.5) | −8.9 pp (−14.6, −3.8) | 0.003 |
+| Codex CLI 0.154.0 + Motif-3 | 170 / 213 | 79.8% (73.9–84.7) | −12.2 pp (−17.4, −7.0) | < 0.001 |
+
+213 Exercism exercises across C++, Go, Java, JavaScript, Python and Rust
+(225 minus 12 excluded **before** the run), one attempt per instance,
+seed 0, a 15-minute cap, the same task text, and the same grader applying
+each patch to a pristine checkout. Motifcode ran as shipped; Codex and
+OpenCode ran through thin adapters against the same Infron endpoint.
+
+**The gap is the harness, not the model.** Codex ended 38 rows on the time
+cap and 2 on a malformed tool call echoed back into history; OpenCode
+ended 21 on the router's repetition abort and 18 on the cap; Motifcode
+ended 22 on the cap and 9 on its own turn and loop guards, and 182
+normally.
+
+And the part that makes it a claim rather than a boast: **the kit ships.**
+`packages/eval/polyglot-bench/` has the adapters, the scripts, the
+exclusions and the per-language table, so anyone can repeat the run with
+their own key. The full method and the incident log are in
+[`packages/eval/REPORT.md`](packages/eval/REPORT.md).
+
+**2. We made the harness survive the model it was written for.**
+
+Motif-3's faults are not hypothetical, so the loop is tested against them
+directly — the tests inject the faults the model actually produces:
+invalid escapes, truncated calls, unparseable bodies, empty turns, a dead
+server. In the fork:
+
+- **A dropped tool call and a final answer look the same.** Recovered: a
+  client-side repair ladder sits behind the server's own parser, bare
+  calls with no tags are recovered, and `done` is a *tool* — so a turn
+  with no action is handed back instead of ending the task.
+- **A breakage budget**, so a loop that is going nowhere stops itself
+  rather than spending the budget silently.
+- **Closed tool schemas**, enforced by a linter that fails the build
+  (`pnpm lint:tools`).
+
+**3. We fixed the things that only show up under a real terminal.**
+
+- **UTF-8 survives the terminal.** It is preserved across input chunks, and
+  writes report UTF-8 byte counts rather than character counts.
+- **A read does not render a phantom EOF line.**
+- **Retries survive into the recording** — the transport's retry metadata
+  is kept, so a replayed session shows what actually happened.
+- **The second `doctor` probe's cache metrics are reported** rather than
+  dropped.
+- **Plugin load errors are shown when none succeed**, instead of a
+  session that starts with nothing loaded and no explanation.
+- **Expanded pasted prompts are retained** in composer history.
+- **The release workflow is idempotent** and creates the GitHub release,
+  publishing through trusted publishing with provenance and no stored token.
+- **`npx` offers the global install**, so the command survives the folder
+  you happened to be in.
+
+### The vision
+
+**A harness is a first-class artifact, and it should be measured like
+one.** The interesting claim in this project is not "Motifcode is good."
+It is: *for a given model, the harness decides a large and measurable part
+of what the model appears to be capable of* — and that gap is worth
+several benchmark points, which is several more than most model releases
+move.
+
+Three things follow from taking that seriously:
+
+1. **Hold the model constant.** Every harness comparison in the field
+   changes the model and the harness together, so it cannot attribute the
+   difference. We change only the harness. That is the whole method, and
+   it is why the kit ships with the result.
+2. **Test against the model's real faults, not imagined ones.** The
+   fault-injection corpus is derived from what the model actually emits
+   against this endpoint, and it grows every time the endpoint changes.
+   A harness hardened against hypothetical failures is a harness hardened
+   against nothing.
+3. **Publish the receipts.** Excluded instances named before the run, the
+   seed, the cap, the adapters, the per-language table, the incident
+   log, the kit. A claim about a harness that cannot be repeated is
+   marketing, and marketing is what this project was built to argue
+   against.
+
+**Where it goes next.** The polyglot suite is one benchmark; SWE-bench
+Verified and Terminal-Bench 2.1 — the two behind Motif-3's published
+scores — still need the same three-harness run before the gap can be
+called general. The harness side is a repair ladder, a breakage budget, a
+frozen tool set and a loop that is tested by being broken on purpose; the
+model side is out of our hands and does not need to be in them.
 
 ---
 
@@ -124,6 +247,19 @@ context used and how much of the prompt the server served from cache.
 ## Install and use
 
 Needs **Node 20+**. The package is one file with no runtime dependencies.
+
+**This is a fork; `npx motifcode` installs the upstream package, not this
+repository.** The upstream release is `motifcode` on npm; we do not publish
+under that name, and we cannot — the name is taken. To run *this* tree:
+
+```bash
+git clone https://github.com/SuperInstance/Motifcode4quilt
+cd Motifcode4quilt
+pnpm install && pnpm build
+node packages/cli/dist/main.js
+```
+
+or, to use the published upstream:
 
 ```bash
 cd your-project
@@ -370,10 +506,18 @@ for proof that a thin tool set is enough.
 
 ## Developer
 
-**Taewoo Park** — physics and spintronics at KAIST, building harnesses for
-science and code. [taewoopark.com](https://taewoopark.com) ·
+**Upstream — Taewoo Park.** Physics and spintronics at KAIST, building
+harnesses for science and code. [taewoopark.com](https://taewoopark.com) ·
 [GitHub](https://github.com/TaewoooPark) · [X](https://x.com/theoverstrcture) ·
 [LinkedIn](https://www.linkedin.com/in/taewoo-park-427a05352)
+
+**This fork — SuperInstance.** The changes above are ours:
+[github.com/SuperInstance/Motifcode4quilt](https://github.com/SuperInstance/Motifcode4quilt).
+
+This is a fork of [TaewooPark/Motifcode](https://github.com/TaewoooPark/Motifcode)
+and remains under its Apache-2.0 licence. We are grateful for the original
+work, and the fork exists because we think the argument in it is worth
+measuring rather than asserting.
 
 ---
 
